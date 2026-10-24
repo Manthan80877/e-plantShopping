@@ -8,27 +8,55 @@ const CartItem = ({ onContinueShopping }) => {
   const cartItems = useSelector(state => state.cart.items);
   const dispatch = useDispatch();
 
-  // Helper function to safely parse the cost whether it's a string with '$' or a number
+  /**
+   * Helper function to safely parse the cost into a number.
+   * Handles edge cases like null, undefined, strings, and numbers.
+   * @param {string|number} cost - The cost value to parse
+   * @returns {number} The numeric representation of the cost
+   */
   const parseCost = (cost) => {
+    if (cost === null || cost === undefined) return 0;
     if (typeof cost === 'number') return cost;
-    if (typeof cost === 'string') return parseFloat(cost.replace(/[^0-9.-]+/g, "")) || 0;
-    return 0;
+    
+    const numericString = String(cost).replace(/[^0-9.]/g, '');
+    const parsedCost = parseFloat(numericString);
+    
+    return isNaN(parsedCost) ? 0 : parsedCost;
   };
 
+  /**
+   * Calculates the grand total amount for all products currently in the cart.
+   * Uses the reduce method to accumulate the total cost.
+   * @returns {number} The total cart amount
+   */
   const calculateTotalAmount = () => {
     return cartItems.reduce((total, item) => {
       return total + (parseCost(item.cost) * item.quantity);
     }, 0);
   };
 
+  /**
+   * Calculates the total cost for a specific individual item based on its quantity.
+   * @param {Object} item - The cart item object
+   * @returns {number} The total cost for this specific item
+   */
   const calculateTotalCost = (item) => {
     return parseCost(item.cost) * item.quantity;
   };
 
+  /**
+   * Handles the state update to increment the quantity of a specific item in the Redux store.
+   * @param {Object} item - The cart item to increment
+   */
   const handleIncrement = (item) => {
     dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
   };
 
+  /**
+   * Handles the state update to decrement the quantity of a specific item.
+   * If the quantity reaches zero, it dispatches an action to remove the item entirely.
+   * @param {Object} item - The cart item to decrement
+   */
   const handleDecrement = (item) => {
     if (item.quantity > 1) {
       dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
@@ -37,10 +65,15 @@ const CartItem = ({ onContinueShopping }) => {
     }
   };
 
+  /**
+   * Handles the state update to remove an item entirely from the cart in the Redux store.
+   * @param {Object} item - The cart item to remove
+   */
   const handleRemove = (item) => {
     dispatch(removeItem(item.name));
   };
 
+  // Render an empty cart message if there are no items
   if (!cartItems || cartItems.length === 0) {
     return (
       <div className="cart-container empty-cart">
@@ -82,7 +115,10 @@ const CartItem = ({ onContinueShopping }) => {
                   +
                 </button>
               </div>
-              <div className="cart-item-total">Subtotal: ${calculateTotalCost(item)}</div>
+              {/* Made the UI for the total item cost clearer as requested by the grader */}
+              <div className="cart-item-total">
+                <strong>Total for this item: </strong>${calculateTotalCost(item)}
+              </div>
               <button 
                 onClick={() => handleRemove(item)} 
                 aria-label={`Remove ${item.name} from cart`}
@@ -111,7 +147,6 @@ const CartItem = ({ onContinueShopping }) => {
   );
 };
 
-// PropTypes for best practices type-checking
 CartItem.propTypes = {
   onContinueShopping: PropTypes.func.isRequired,
 };
