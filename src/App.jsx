@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import './App.css';
 import AboutUs from './AboutUs';
+import ProductList from './ProductList';
 
 function App() {
   const [showShop, setShowShop] = useState(false);
-
-  const handleGetStarted = () => {
-    setShowShop(true);
-  };
 
   return (
     <div className="App">
@@ -16,19 +13,20 @@ function App() {
           <div className="landing-content">
             <h1>Paradise Nursery</h1>
             <p>Where Green Meets Serenity</p>
-            <button className="get-started-btn" onClick={handleGetStarted}>
+            <button className="get-started-btn" onClick={() => setShowShop(true)}>
               Get Started
             </button>
-            {/* Displaying the AboutUs component we created in Task 2 */}
-            <div style={{ marginTop: '40px' }}>
+            <div style={{ marginTop: '30px' }}>
               <AboutUs />
             </div>
           </div>
         </div>
       ) : (
         <div className="shop-page">
-          {/* This is where the product list will go in Task 6 */}
-          <h2>Welcome to the Shop! (Products Coming Soon)</h2>
+          <ProductList 
+            onHomeClick={() => setShowShop(false)} 
+            onCartClick={() => alert('Cart component coming in Task 7!')} 
+          />
         </div>
       )}
     </div>
