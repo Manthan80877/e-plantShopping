@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addItem } from './CartSlice';
+import CartItem from './CartItem';
 
 const plantsArray = [
     {
@@ -38,9 +39,10 @@ const plantsArray = [
     }
 ];
 
-const ProductList = ({ onCartClick, onHomeClick }) => {
+const ProductList = ({ onHomeClick }) => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
+  const [showCart, setShowCart] = useState(false);
 
   const handleAddToCart = (plant) => {
     dispatch(addItem(plant));
@@ -52,54 +54,56 @@ const ProductList = ({ onCartClick, onHomeClick }) => {
 
   return (
     <div>
-      {/* Navbar */}
       <nav style={{ display: 'flex', justifyContent: 'space-between', padding: '15px', backgroundColor: '#4CAF50', color: 'white' }}>
         <div style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '20px' }} onClick={onHomeClick}>
           Paradise Nursery
         </div>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
           <span style={{ cursor: 'pointer' }} onClick={onHomeClick}>Home</span>
-          <span style={{ cursor: 'pointer' }}>Plants</span>
-          <span style={{ cursor: 'pointer', fontSize: '20px' }} onClick={onCartClick}>
+          <span style={{ cursor: 'pointer' }} onClick={() => setShowCart(false)}>Plants</span>
+          <span style={{ cursor: 'pointer', fontSize: '20px' }} onClick={() => setShowCart(true)}>
             🛒 <span style={{ backgroundColor: 'red', borderRadius: '50%', padding: '2px 6px', fontSize: '14px' }}>{getTotalItems()}</span>
           </span>
         </div>
       </nav>
 
-      {/* Product Grid */}
-      <div style={{ padding: '20px' }}>
-        {plantsArray.map((category, index) => (
-          <div key={index}>
-            <h2 style={{ textAlign: 'center', marginTop: '30px' }}>{category.category}</h2>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
-              {category.plants.map((plant, plantIndex) => {
-                const isAdded = cartItems.some(item => item.name === plant.name);
-                return (
-                  <div key={plantIndex} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '8px', textAlign: 'center', width: '200px' }}>
-                    <img src={plant.image} alt={plant.name} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '5px' }} />
-                    <h3>{plant.name}</h3>
-                    <p>{plant.cost}</p>
-                    <button 
-                      onClick={() => handleAddToCart(plant)} 
-                      disabled={isAdded}
-                      style={{
-                        padding: '10px 20px',
-                        backgroundColor: isAdded ? '#ccc' : '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: isAdded ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      {isAdded ? 'Added' : 'Add to Cart'}
-                    </button>
-                  </div>
-                );
-              })}
+      {!showCart ? (
+        <div style={{ padding: '20px' }}>
+          {plantsArray.map((category, index) => (
+            <div key={index}>
+              <h2 style={{ textAlign: 'center', marginTop: '30px' }}>{category.category}</h2>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
+                {category.plants.map((plant, plantIndex) => {
+                  const isAdded = cartItems.some(item => item.name === plant.name);
+                  return (
+                    <div key={plantIndex} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '8px', textAlign: 'center', width: '200px' }}>
+                      <img src={plant.image} alt={plant.name} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '5px' }} />
+                      <h3>{plant.name}</h3>
+                      <p>{plant.cost}</p>
+                      <button 
+                        onClick={() => handleAddToCart(plant)} 
+                        disabled={isAdded}
+                        style={{
+                          padding: '10px 20px',
+                          backgroundColor: isAdded ? '#ccc' : '#4CAF50',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '5px',
+                          cursor: isAdded ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        {isAdded ? 'Added' : 'Add to Cart'}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <CartItem onContinueShopping={() => setShowCart(false)} />
+      )}
     </div>
   );
 };
